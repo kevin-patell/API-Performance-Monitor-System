@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroMetrics // Enterprise Observability Engine</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-panel: #131c2e;
+            --bg-surface: #1e2942;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --neon-blue: #0ea5e9;
+            --neon-emerald: #10b981;
+            --neon-rose: #f43f5e;
+            --neon-amber: #f59e0b;
+            --glow-blue: rgba(14, 165, 233, 0.15);
+        }
+        
+        body { 
+            background-color: var(--bg-main); 
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            letter-spacing: -0.015em;
+        }
+
+        /* Premium Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-surface); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+        /* Structural Glassmorphism Elements */
+        .glass-panel {
+            background: var(--bg-panel);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: border-color 0.25s ease, transform 0.2s ease;
+        }
+        .glass-panel:hover {
+            border-color: rgba(14, 165, 233, 0.2);
+        }
+
+        /* High-Visibility Typography Overrides */
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--text-primary) !important;
+        }
+        
+        .text-muted {
+            color: var(--text-secondary) !important;
+        }
+
+        /* Modern Controls with Fixed Text Contrast */
+        .form-control, .form-select {
+            background-color: var(--bg-main) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            color: var(--text-primary) !important;
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--neon-blue) !important;
+            box-shadow: 0 0 0 2px var(--glow-blue) !important;
+            color: var(--text-primary) !important;
+        }
+        .form-control::placeholder {
+            color: rgba(148, 163, 184, 0.4) !important;
+        }
+        
+        /* Premium Buttons */
+        .btn-premium {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            color: white !important;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            padding: 0.6rem 1.5rem;
+            box-shadow: 0 4px 14px var(--glow-blue);
+            transition: all 0.2s;
+        }
+        .btn-premium:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-secondary-premium {
+            background: var(--bg-surface);
+            color: var(--text-primary) !important;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .btn-secondary-premium:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Responsive Navigation Architecture */
+        .nav-link-custom {
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .nav-link-custom:hover, .nav-link-custom.active {
+            color: var(--neon-blue) !important;
+            background: rgba(14, 165, 233, 0.08);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark py-3 mb-4" style="background: rgba(19, 28, 46, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.04); position: sticky; top: 0; z-index: 1030;">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center fw-bold text-white fs-4" href="#">
+                <span style="color: var(--neon-blue); margin-right: 8px;">⌁</span> AERO<span style="color: var(--text-secondary); font-weight: 300;">METRICS</span>
+            </a>
+            {% if session.get('logged_in') %}
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="{{ url_for('dashboard_route') }}">Telemetry Metrics</a></li>
+                    <li class="nav-item"><a class="nav-link nav-link-custom" href="{{ url_for('manage_apis_route') }}">Node Manager</a></li>
+                    <li class="nav-item ms-lg-3"><a class="btn btn-sm btn-outline-danger px-3 rounded-3" style="border-color: rgba(244,63,94,0.3); color: var(--neon-rose);" href="{{ url_for('logout_route') }}">Terminate Session</a></li>
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for cat, msg in messages %}
+                    <div class="alert border-0 text-white mb-4 shadow-lg d-flex align-items-center" style="background: var(--bg-panel); border-left: 4px solid {% if cat=='success' %}var(--neon-emerald){% else %}var(--neon-rose){% endif %} !important;" role="alert">
+                        <div class="flex-grow-1 small">{{ msg }}</div>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* High-Contrast Analytics Title Label Fixes */
+    .metric-label-title {
+        color: var(--text-secondary) !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 0.75rem !important;
+        display: block;
+        margin-bottom: 0.5rem;
+        opacity: 0.95;
+    }
+    .metric-subtext {
+        color: var(--text-secondary) !important;
+        font-size: 0.8rem;
+        opacity: 0.75;
+    }
+
+    /* Universal Dark Mode Table Fixes for Dashboard Execution Buffers */
+    .glass-panel table {
+        background-color: transparent !important;
+        color: var(--text-primary) !important;
+    }
+    .glass-panel tr, 
+    .glass-panel td, 
+    .glass-panel th {
+        background-color: transparent !important;
+        color: var(--text-primary) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    }
+    .glass-panel table thead th {
+        color: var(--text-secondary) !important;
+        border-bottom: 2px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(255, 255, 255, 0.02) !important;
+    }
+    
+    /* Force high visibility on the text column values */
+    .glass-panel td.fw-bold {
+        color: var(--text-primary) !important;
+    }
+    .text-white-50 {
+        color: rgba(248, 250, 252, 0.7) !important;
+    }
+</style>
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold text-white m-0 tracking-tight">System Operational Core</h2>
+        <p class="m-0 small" style="color: var(--text-secondary);">Real-time stream telemetry and dynamic threshold analytics</p>
+    </div>
+    <div class="dropdown">
+        <button class="btn btn-secondary-premium dropdown-toggle px-3 py-2" type="button" data-bs-toggle="dropdown">
+            📥 Compile Diagnostic Extracts
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="background: var(--bg-surface); color: white;">
+            <li><a class="dropdown-item text-white small hover-glow" href="{{ url_for('trigger_export', fmt='csv') }}">Download Comma-Separated Log (.csv)</a></li>
+            <li><a class="dropdown-item text-white small hover-glow" href="{{ url_for('trigger_export', fmt='xlsx') }}">Download Structured Spreadsheet (.xlsx)</a></li>
+            <li><a class="dropdown-item text-white small hover-glow" href="{{ url_for('trigger_export', fmt='pdf') }}">Generate Executive Vector Report (.pdf)</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="glass-panel p-3 mb-4 position-relative overflow-hidden" id="anomalyBox" style="display:none; border-left: 4px solid var(--neon-rose) !important; background: rgba(244, 63, 94, 0.04);">
+    <div class="d-flex align-items-center">
+        <div class="me-3 fs-4" style="color: var(--neon-rose);">⚠️</div>
+        <div>
+            <h6 class="my-0 fw-bold text-white">Statistical Latency Outlier Triggered</h6>
+            <span id="anomalyText" class="small text-secondary">A registered cluster interface expanded exponentially past baseline standard deviations.</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="glass-panel p-4 position-relative">
+            <span class="metric-label-title">Cluster Nodes</span>
+            <div class="d-flex align-items-baseline gap-2 mt-2">
+                <h2 class="fw-bold m-0 text-white">{{ total_apis }}</h2>
+                <span class="metric-subtext">/ {{ active_apis }} online</span>
+            </div>
+            <div class="progress mt-3" style="height: 3px; background: rgba(255,255,255,0.05);">
+                <div class="progress-bar" style="width: 100%; background: var(--neon-blue);"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-panel p-4">
+            <span class="metric-label-title">Telemetry Hits</span>
+            <div class="d-flex align-items-baseline gap-2 mt-2">
+                <h2 class="fw-bold m-0" style="color: var(--neon-emerald);">{{ total_checks }}</h2>
+                <span class="metric-subtext">dispatches</span>
+            </div>
+            <div class="progress mt-3" style="height: 3px; background: rgba(255,255,255,0.05);">
+                <div class="progress-bar" style="width: 100%; background: var(--neon-emerald);"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-panel p-4">
+            <span class="metric-label-title">Cluster Mean Latency</span>
+            <div class="d-flex align-items-baseline gap-2 mt-2">
+                <h2 class="fw-bold m-0" style="color: var(--neon-blue);">{{ avg_latency }} <span class="fs-6 fw-normal text-muted">ms</span></h2>
+            </div>
+            <div class="progress mt-3" style="height: 3px; background: rgba(255,255,255,0.05);">
+                <div class="progress-bar" style="width: 100%; background: var(--neon-blue);"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="glass-panel p-4">
+            <span class="metric-label-title">Operational Success</span>
+            <div class="d-flex align-items-baseline gap-2 mt-2">
+                <h2 class="fw-bold m-0" style="color: {% if success_rate >= 95.0 %}var(--neon-emerald){% else %}var(--neon-amber){% endif %};">{{ success_rate }}%</h2>
+            </div>
+            <div class="progress mt-3" style="height: 3px; background: rgba(255,255,255,0.05);">
+                <div class="progress-bar" style="width: {{ success_rate }}%; background: var(--neon-emerald);"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="glass-panel p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold text-white m-0">Live Latency Vector History</h5>
+        <span class="badge rounded-pill px-2.5 py-1 small" style="background: rgba(14,165,233,0.1); color: var(--neon-blue); border: 1px solid rgba(14,165,233,0.2);">Real-time Refresh Polling</span>
+    </div>
+    <div style="height:280px; width: 100%;"><canvas id="latencyStreamCanvas"></canvas></div>
+</div>
+
+<div class="glass-panel overflow-hidden">
+    <div class="p-4 border-bottom border-secondary border-opacity-10 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold m-0 text-white">Recent Execution Buffers</h5>
+        <span class="text-muted small">Latest 10 checks running sequential processing</span>
+    </div>
+    <div class="table-responsive">
+        <table class="table align-middle m-0 table-hover">
+            <thead class="small text-uppercase text-muted" style="background: rgba(255,255,255,0.01); font-size: 0.75rem; letter-spacing: 0.05em;">
+                <tr>
+                    <th class="ps-4 py-3">Monitor Identity Context</th>
+                    <th class="py-3">Method</th>
+                    <th class="py-3">Status Gate</th>
+                    <th class="py-3">Response Window</th>
+                    <th class="pe-4 py-3 text-end">Execution Time</th>
+                </tr>
+            </thead>
+            <tbody class="small" style="border-top: none;">
+                {% for check in recent_checks %}
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.03);">
+                    <td class="fw-bold text-white ps-4 py-3 d-flex align-items-center gap-2">
+                        <span style="display:inline-block; width: 6px; height: 6px; border-radius:50%; background: {% if check.is_success == 1 %}var(--neon-emerald){% else %}var(--neon-rose){% endif %}; box-shadow: 0 0 8px {% if check.is_success == 1 %}var(--neon-emerald){% else %}var(--neon-rose){% endif %};"></span>
+                        {{ check.name }}
+                    </td>
+                    <td><span class="badge font-monospace px-2 py-1" style="background: var(--bg-surface); border: 1px solid rgba(255,255,255,0.05); color: var(--text-secondary);">{{ check.method }}</span></td>
+                    <td><code style="color: {% if check.is_success == 1 %}var(--neon-emerald){% else %}var(--neon-rose){% endif %};">{{ check.status_code or 'TRANSPORT_ERR' }}</code></td>
+                    <td class="fw-semibold text-white">{{ check.response_time_ms }} ms</td>
+                    <td class="text-muted pe-4 py-3 text-end">{{ check.checked_at }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">Observability engine pipeline currently awaiting streaming data feeds.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('latencyStreamCanvas').getContext('2d');
+        
+        fetch('/api/metrics-chart')
+            .then(res => res.json())
+            .then(data => {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Processing Time',
+                            data: data.values,
+                            borderColor: '#0ea5e9',
+                            backgroundColor: 'rgba(14, 165, 233, 0.04)',
+                            fill: true,
+                            tension: 0.2,
+                            borderWidth: 2.5,
+                            pointRadius: 3,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#0b0f19',
+                            pointBorderColor: '#0ea5e9'
+                        }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+                            y: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#64748b', font: { size: 10 } } }
+                        }
+                    }
+                });
+            });
+
+        function catchDrift() {
+            fetch('/api/anomalies')
+                .then(res => res.json())
+                .then(items => {
+                    if (items.length > 0) {
+                        document.getElementById('anomalyBox').style.display = 'block';
+                        document.getElementById('anomalyText').innerText = `Anomaly signature flagged: Target index "${items[0].name}" registered an irregular data swing to ${items[0].response_time_ms}ms.`;
+                    }
+                });
+        }
+        setInterval(catchDrift, 12000);
+        catchDrift();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 65vh;">
+    <div class="col-xl-4 col-md-6">
+        <div class="glass-panel p-5 position-relative overflow-hidden">
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--neon-blue), transparent);"></div>
+            <div class="text-center mb-4">
+                <h3 class="fw-bold text-white mb-1">Infrastructure Access</h3>
+                <p style="color: var(--text-secondary);" class="small">Provide administrative cryptographic tokens</p>
+            </div>
+            <form action="{{ url_for('login_route') }}" method="POST">
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold text-uppercase text-muted" style="letter-spacing: 0.05em;">Operator Identifier</label>
+                    <input type="text" name="username" class="form-control" required placeholder="Identifier handle">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label small fw-semibold text-uppercase text-muted" style="letter-spacing: 0.05em;">Access Security Key</label>
+                    <input type="password" name="password" class="form-control" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-premium w-100 py-2.5">INITIALIZE AUTHENTICATION</button>
+            </form>
+            <div class="mt-4 pt-3 border-top border-secondary border-opacity-10 text-center">
+                <span class="text-muted small">System Sandbox Keys: <code>admin</code> / <code>admin123</code></span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
